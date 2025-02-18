@@ -2,38 +2,42 @@ pipeline {
     agent any
 
     environment {
-        AWS_CREDENTIALS = credentials('aws-credentials') 
+        AWS_ACCESS_KEY_ID = credentials('aws-credentials').username
+        AWS_SECRET_ACCESS_KEY = credentials('aws-credentials').password
     }
 
     stages {
-        stage('Setup AWS Credentials') {
-            steps {
-                script {
-                    def parts = AWS_CREDENTIALS.split(':')
-                    env.AWS_ACCESS_KEY_ID = parts[0]
-                    env.AWS_SECRET_ACCESS_KEY = parts[1]
-                }
-            }
-        }
         stage('Checkout Code') {
             steps {
                 git 'https://github.com/JashanpreetKaur45/terraform-aws-s3.git'
             }
         }
-        stage('Initialize Terraform') {
+
+        stage('Terraform Init') {
             steps {
                 sh 'terraform init'
             }
         }
+
         stage('Terraform Plan') {
             steps {
                 sh 'terraform plan'
             }
         }
+
         stage('Terraform Apply') {
             steps {
                 sh 'terraform apply -auto-approve'
             }
+        }
+    }
+
+    post {
+        success {
+            echo 'Terraform execution completed successfully!'
+        }
+        failure {
+            echo 'Terraform execution failed!'
         }
     }
 }
