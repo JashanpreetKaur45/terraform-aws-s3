@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         AWS_CREDENTIALS = credentials('aws-credentials') 
+        
     }
 
     stages {
